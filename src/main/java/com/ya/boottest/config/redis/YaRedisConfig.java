@@ -1,4 +1,4 @@
-package com.ya.boottest.utils.config;
+package com.ya.boottest.config.redis;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

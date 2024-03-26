@@ -1,4 +1,4 @@
-package com.ya.boottest.utils.config;
+package com.ya.boottest.config.mybatisplus;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;

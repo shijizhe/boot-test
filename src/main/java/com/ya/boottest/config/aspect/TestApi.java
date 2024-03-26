@@ -1,4 +1,4 @@
-package com.ya.boottest.utils.config.aspect;
+package com.ya.boottest.config.aspect;
 
 import java.lang.annotation.*;
 

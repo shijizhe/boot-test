@@ -1,4 +1,4 @@
-package com.ya.boottest.utils.config;
+package com.ya.boottest.config.swagger;
 
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;

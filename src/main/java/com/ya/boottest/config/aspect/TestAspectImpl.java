@@ -1,4 +1,4 @@
-package com.ya.boottest.utils.config.aspect;
+package com.ya.boottest.config.aspect;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 public class TestAspectImpl {
     private static final Logger logger = LoggerFactory.getLogger(TestAspectImpl.class);
 
-    @Pointcut(value = "@annotation(TestApi)")
+    @Pointcut(value = "@annotation(com.ya.boottest.config.aspect.TestApi)")
     public void testApiPointcut() {
     }
 
