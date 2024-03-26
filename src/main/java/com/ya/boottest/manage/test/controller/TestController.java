@@ -1,13 +1,13 @@
 package com.ya.boottest.manage.test.controller;
 
+import com.ya.boottest.utils.auth.UserAuthUtils;
+import com.ya.boottest.utils.redis.RedisUtils;
 import com.ya.boottest.utils.result.BaseResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * <p>
@@ -23,11 +23,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/test")
 @Tag(name = "TestController", description = "测试controller")
 public class TestController {
+    @Autowired
+    RedisUtils redisUtils;
 
+    @GetMapping("/testApi")
+    @Operation(summary = "testApi", description = "测试使用-直接返回成功")
+    public Object testApi(){
+        String userId = UserAuthUtils.getUserId();
+        System.out.println(userId);
 
-    @PostMapping("/shiwuceshi")
-    @Operation(summary = "shiwuceshi", description = "shiwuceshi")
-    public Object shiwuceshi(@RequestParam(value = "fruitCode") String fruitCode) {
-        return BaseResult.success();
+        redisUtils.set("token_test", "1234", 1800L/60);
+        System.out.println(redisUtils.get("token_test"));
+
+        return BaseResult.success(userId);
     }
 }

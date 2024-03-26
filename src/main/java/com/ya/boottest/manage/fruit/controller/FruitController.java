@@ -1,9 +1,7 @@
 package com.ya.boottest.manage.fruit.controller;
 
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -13,9 +11,9 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.ya.boottest.autocode.fruit.entity.Fruit;
 import com.ya.boottest.autocode.fruit.service.IFruitService;
+import com.ya.boottest.config.aspect.TestApi;
 import com.ya.boottest.manage.fruit.mapper.MyFruitMapper;
 import com.ya.boottest.manage.fruit.service.MyFruitService;
-import com.ya.boottest.utils.config.aspect.TestApi;
 import com.ya.boottest.utils.redis.RedisUtils;
 import com.ya.boottest.utils.result.BaseResult;
 import com.ya.boottest.utils.result.PageResult;
@@ -38,7 +36,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * <p>
@@ -236,38 +233,6 @@ public class FruitController {
         return BaseResult.success();
     }
 
-    @GetMapping("/batchLikeTest")
-    @Operation(summary = "batchLikeTest", description = "batchLikeTest")
-    public Object batchLikeTest(@RequestParam(value = "filterList") List<String> filterList) {
-        LambdaQueryWrapper<Fruit> wrapper = new LambdaQueryWrapper<>();
-        if(CollectionUtil.isNotEmpty(filterList)){
-            if (CollectionUtil.isNotEmpty(filterList)) {
-                wrapper.and(wq -> {
-                    for (int i = 0; i < filterList.size(); i++) {
-                        if (i != 0){
-                            wq.or();
-                        }
-                        wq.likeRight(Fruit::getId, filterList.get(i));
-                    }
-                });
-            }
-        }
-        List<Fruit> list = fruitService.list(wrapper);
-        return BaseResult.success(list);
-    }
-
-    @GetMapping("/test999")
-    @Operation(summary = "test999", description = "test999")
-    public Object test999(@RequestParam(value = "keywords ") String keywords) {
-        Map<String, String> parMap = new HashMap<>();
-        parMap.put("keywords", keywords);
-        parMap.put("ids", "  ");
-        parMap.put("ids1", null);
-        parMap.put("ids2", "");
-        List<Fruit> fruit = myFruitMapper.listFruit(parMap);
-        return BaseResult.success(fruit);
-    }
-
     @PostMapping("/testAspect")
     @Operation(summary = "testAspect", description = "testAspect")
     @TestApi
@@ -278,116 +243,21 @@ public class FruitController {
         return BaseResult.success();
     }
 
-    @PostMapping("/testSaveNull")
-    @Operation(summary = "testSaveNull", description = "testSaveNull")
-    public Object testSaveNull(@RequestBody Fruit fruit) {
-        Fruit fruit1 = new Fruit();
-        fruit1.setId(1L);
-        fruit1.setFrCode("111");
-        AtomicBoolean save = new AtomicBoolean(true);
-          transactionTemplate.execute(status -> {
-              boolean save2 = fruitService.save(fruit1);
-
-              boolean save1 = fruitService.save(fruit);
-              save.set(save1);
-              log.error(String.valueOf(save1));
-              return 1;
-
-          });
-
-
-        return BaseResult.success(save);
-    }
-
-    @PostMapping("/getOneByPost")
-    @Operation(summary = "getOneByPost", description = "getOneByPost")
-    public Object getOneByPost(@RequestBody JSONObject xx) {
-        System.out.println(xx);
-        JSONObject data = xx.getJSONObject("DATA");
-        String code = data.getString("frCode");
-        LambdaQueryWrapper<Fruit> wr = new LambdaQueryWrapper<>();
-        wr.eq(Fruit::getFrCode,code);
-        Fruit fruit = fruitService.getOne(wr);
-        Map<String, Object> res = new HashMap<>();
-        res.put("CODE", "000");
-        res.put("DATA", fruit);
-        return res;
-    }
-
-    @PostMapping("/downTest1")
-    @Operation(summary = "downTest1", description = "downTest1")
-    public Object downTest1(@RequestBody JSONObject request) {
-        System.out.println(request);
-        JSONObject data = request.getJSONObject("DATA");
-        LambdaQueryWrapper<Fruit> wr = new LambdaQueryWrapper<>();
-        wr.eq(Fruit::getFrCode,"A001");
-        Fruit fruit = fruitService.getOne(wr);
-        Map<String, Object> res = new HashMap<>();
-        res.put("CODE", "000");
-        res.put("DATA", fruit);
-        return res;
-    }
-
-    @PostMapping("/downTestPage1")
-    @Operation(summary = "downTestPage1", description = "downTestPage1")
-    public Object downTestPage1(@RequestBody JSONObject request) {
-
-        int pageSize = request.getIntValue("PAGESIZE");
-        int pageNum = request.getIntValue("PAGENUM");
-
-        Page<Fruit> page = new Page<>(pageNum, pageSize);
-        fruitService.page(page, new QueryWrapper<>());
-        JSONObject res = new JSONObject();
-        res.put("TOTAL", page.getTotal());
-        res.put("PAGESIZE", pageSize);
-        res.put("PAGENUM", pageNum);
-        res.put("DATA", page.getRecords());
-        res.put("CODE", "000");
-
-        return res;
-    }
-
-    @PostMapping("/processData")
-    @Operation(summary = "processData", description = "processData")
-    public Object processData(@RequestBody JSONObject request) {
-        log.error("ERROR request:{}", request);
-        // 加工的具体逻辑...
-        return "200";
-    }
-
-    @PostMapping("/handWriteName")
-    @Operation(summary = "handWriteName", description = "handWriteName")
-    public Object handWriteName(@RequestParam(value = "fruitCode") String fruitCode) {
+    @PostMapping("/handWriteMapper")
+    @Operation(summary = "handWriteMapper", description = "手写的mapper查询数据")
+    public Object handWriteMapper(@RequestParam(value = "fruitCode") String fruitCode) {
         return BaseResult.success(myFruitMapper.getOneFruit(fruitCode, "1"));
     }
 
 
     @PostMapping("/lamdaUpdate")
     @Operation(summary = "lamdaUpdate", description = "lamdaUpdate")
-    public Object lamdaUpdate(@RequestParam(value = "fruitCode") String fruitCode) {
-        fruitService.lambdaUpdate().eq(Fruit::getFrCode, "test")
-                .set(Fruit::getFrName, "变更水果").update();
+    public Object lambdaUpdate(@RequestParam(value = "fruitCode") String fruitCode) {
+        fruitService.lambdaUpdate()
+                .eq(Fruit::getFrCode, "test")
+                .set(Fruit::getFrName, "变更水果")
+                .update();
         return BaseResult.success();
     }
-
-    @PostMapping("/shiwuceshi")
-    @Operation(summary = "shiwuceshi", description = "shiwuceshi")
-    public Object shiwuceshi(@RequestParam(value = "fruitCode") String fruitCode) {
-        try{
-            myFruitService.TranTest();
-        }catch (Exception e){
-            System.out.println(e.getMessage());
-        }
-        return BaseResult.success();
-    }
-
-    @PostMapping("/redisTest")
-    @Operation(summary = "redisTest", description = "redisTest")
-    public Object redisTest(@RequestParam(value = "fruitCode") String fruitCode) {
-        redisUtils.set("test:ekey:xxx", "shijizhe");
-        redisUtils.set("test:ekey:xxx2", "石际哲");
-        return BaseResult.success(redisUtils.getString("test:ekey:xxx2"));
-    }
-
 
 }

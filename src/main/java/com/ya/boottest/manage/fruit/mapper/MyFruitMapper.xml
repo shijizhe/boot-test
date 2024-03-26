@@ -11,6 +11,5 @@
           SELECT #{fruitCode}, #{id}, #{param1}, #{arg1}
           FROM fruit
           WHERE fruit.fr_code like CONCAT( '%',#{fruitCode},'%')
-
      </select>
 </mapper>

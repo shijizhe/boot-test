@@ -22,6 +22,11 @@ spring:
           max-wait: -1ms
           max-active: 16
 
+logging:
+  level:
+    com.ya.boottest :  DEBUG
+    root: INFO
+
 
 mybatis-plus:
   mapper-locations: classpath*:com/ya/boottest/**/*.xml
@@ -58,3 +63,10 @@ knife4j:
   enable: true
   setting:
     language: zh_cn
+
+ya-app:
+  auth:
+    jwt:
+      secret: aBcD1234eFgH5678IjKl90MnOpQrStUvWxYz4567
+      expiration: 1800
+      not-before: 2024-01-01
