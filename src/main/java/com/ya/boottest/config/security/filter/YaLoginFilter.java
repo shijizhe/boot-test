@@ -36,13 +36,9 @@ import static com.ya.boottest.utils.constants.auth.AuthConstants.*;
 @Slf4j
 public class YaLoginFilter extends UsernamePasswordAuthenticationFilter {
 
-
-
     private final RedisUtils redisUtils;
 
     private final Long expiration;
-
-
 
     public YaLoginFilter(AuthenticationManager authenticationManager, RedisUtils redisUtils, Long expiration) {
         this.expiration = expiration;
@@ -82,7 +78,7 @@ public class YaLoginFilter extends UsernamePasswordAuthenticationFilter {
         // 将UserDetails存入redis中
         redisUtils.set(REDIS_KEY_AUTH_USER_DETAIL + userId, JSON.toJSONString(userDetails), 1, TimeUnit.DAYS);
 
-        ServletUtils.renderResult(response, new BaseResult<>(ResultEnum.SUCCESS.code, "登陆成功"));
+        ServletUtils.renderResult(response, new BaseResult<>(ResultEnum.SUCCESS.code, "登录成功"));
         log.info("YaLoginFilter authentication end");
     }
 
