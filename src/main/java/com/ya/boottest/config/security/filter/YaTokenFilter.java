@@ -1,6 +1,9 @@
 package com.ya.boottest.config.security.filter;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.ya.boottest.config.security.YaUserDetailService;
 import com.ya.boottest.utils.constants.auth.AuthConstants;
 import com.ya.boottest.utils.jwt.JwtUtils;
@@ -15,11 +18,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -71,11 +79,11 @@ public class YaTokenFilter extends OncePerRequestFilter {
         }
 
         // 携带token
-        final String jwt = authorization.replace(AuthConstants.TOKEN_PREFIX, "");
+        final String token = authorization.replace(AuthConstants.TOKEN_PREFIX, "");
         String userId;
         // 2.提供的token异常
         try {
-            userId =  JwtUtils.extractUserId(jwt);
+            userId =  JwtUtils.extractUserId(token);
         }catch (Exception e){
             log.error("YaTokenFilter doFilterInternal 解析jwt异常：{}", e.toString());
             ServletUtils.renderResult(response, new BaseResult<>(ResultEnum.FAILED_UNAUTHORIZED.code, "凭证异常"));
@@ -90,16 +98,19 @@ public class YaTokenFilter extends OncePerRequestFilter {
         }
 
         // 4.提供的token是合法的，但是redis中的token又被使用登录功能重新刷新了一下，导致不一致。
-        if(!Objects.equals(redisToken, jwt)){
+        if(!Objects.equals(redisToken, token)){
             ServletUtils.renderResult(response, new BaseResult<>(ResultEnum.FAILED_UNAUTHORIZED.code, "账号在别处登陆。"));
             return;
         }
         // token续期
-        redisUtils.set(REDIS_KEY_AUTH_TOKEN + userId, jwt, expiration);
+        redisUtils.set(REDIS_KEY_AUTH_TOKEN + userId, token, expiration);
         // 获取用户信息和权限
-        UserDetails userDetails = (UserDetails) redisUtils.get(AuthConstants.REDIS_KEY_AUTH_USER_DETAIL + userId);
-        if(Objects.isNull(userDetails)){
+        String userDetailStr =  redisUtils.getString(AuthConstants.REDIS_KEY_AUTH_USER_DETAIL + userId);
+        UserDetails userDetails;
+        if(Objects.isNull(userDetailStr)){
             userDetails = yaUserDetailService().loadUserByUsername(userId);
+        }else{
+            userDetails = initUser(userDetailStr);
         }
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(
@@ -112,6 +123,20 @@ public class YaTokenFilter extends OncePerRequestFilter {
 
     private YaUserDetailService yaUserDetailService(){
         return SpringContextUtils.getBean(YaUserDetailService.class);
+    }
+
+    private User initUser(String userJsonStr){
+        JSONObject userJson = JSON.parseObject(userJsonStr);
+
+        String userId = userJson.getString("username");
+        JSONArray authArray = userJson.getJSONArray("authorities");
+
+        List<GrantedAuthority> authorities = new ArrayList<>(authArray.size());
+        for(int i=0; i< authArray.size();i++){
+            JSONObject authObj = authArray.getJSONObject(i);
+            authorities.add(new SimpleGrantedAuthority(authObj.getString("authority")));
+        }
+        return new User(userId, "[PROTECTED]", authorities);
     }
 
 }

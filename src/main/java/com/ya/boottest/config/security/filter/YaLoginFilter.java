@@ -74,13 +74,13 @@ public class YaLoginFilter extends UsernamePasswordAuthenticationFilter {
         // 如果验证成功, 就生成Token并返回
         UserDetails userDetails = (UserDetails) authResult.getPrincipal();
         String userId = userDetails.getUsername();
-        String token = TOKEN_PREFIX + JwtUtils.generateToken(userId);
-        response.setHeader(TOKEN_HEADER, token);
+        String token = JwtUtils.generateToken(userId);
+        response.setHeader(TOKEN_HEADER, TOKEN_PREFIX + token);
         // 将token存入Redis中
         redisUtils.set(REDIS_KEY_AUTH_TOKEN + userId, token, expiration);
         log.info("YaLoginFilter authentication end");
         // 将UserDetails存入redis中
-        redisUtils.set(REDIS_KEY_AUTH_USER_DETAIL + userId, userDetails, 1, TimeUnit.DAYS);
+        redisUtils.set(REDIS_KEY_AUTH_USER_DETAIL + userId, JSON.toJSONString(userDetails), 1, TimeUnit.DAYS);
 
         ServletUtils.renderResult(response, new BaseResult<>(ResultEnum.SUCCESS.code, "登陆成功"));
         log.info("YaLoginFilter authentication end");

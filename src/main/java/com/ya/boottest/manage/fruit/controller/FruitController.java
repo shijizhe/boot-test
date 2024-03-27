@@ -14,6 +14,7 @@ import com.ya.boottest.autocode.fruit.service.IFruitService;
 import com.ya.boottest.config.aspect.TestApi;
 import com.ya.boottest.manage.fruit.mapper.MyFruitMapper;
 import com.ya.boottest.manage.fruit.service.MyFruitService;
+import com.ya.boottest.utils.auth.UserAuthUtils;
 import com.ya.boottest.utils.redis.RedisUtils;
 import com.ya.boottest.utils.result.BaseResult;
 import com.ya.boottest.utils.result.PageResult;
@@ -94,7 +95,8 @@ public class FruitController {
     @GetMapping("/list")
     @Operation(summary = "list", description = "获取水果信息")
     public Object list() {
-       return BaseResult.success(fruitService.list());
+        String userId = UserAuthUtils.getUserId();
+        return BaseResult.success(fruitService.list());
     }
 
     @GetMapping("/pageQuery")

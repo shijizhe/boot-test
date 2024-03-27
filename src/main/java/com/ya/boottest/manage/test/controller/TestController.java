@@ -31,10 +31,6 @@ public class TestController {
     public Object testApi(){
         String userId = UserAuthUtils.getUserId();
         System.out.println(userId);
-
-        redisUtils.set("token_test", "1234", 1800L/60);
-        System.out.println(redisUtils.get("token_test"));
-
         return BaseResult.success(userId);
     }
 }
