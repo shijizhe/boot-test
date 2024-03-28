@@ -30,10 +30,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.ya.boottest.utils.constants.auth.AuthConstants.REDIS_KEY_AUTH_TOKEN;
+import static com.ya.boottest.utils.constants.auth.AuthConstants.REDIS_KEY_AUTH_USER_DETAIL;
 
 /**
  * <p>
@@ -109,6 +111,7 @@ public class YaTokenFilter extends OncePerRequestFilter {
         UserDetails userDetails;
         if(Objects.isNull(userDetailStr)){
             userDetails = yaUserDetailService().loadUserByUsername(userId);
+            redisUtils.set(REDIS_KEY_AUTH_USER_DETAIL + userId, JSON.toJSONString(userDetails), 1, TimeUnit.DAYS);
         }else{
             userDetails = initUser(userDetailStr);
         }

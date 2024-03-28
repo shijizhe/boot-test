@@ -71,8 +71,8 @@ public class YaSecurityConfig {
                 .addFilterAt(new YaLoginFilter(authenticationManager(authenticationConfiguration), redisUtils, expiration), UsernamePasswordAuthenticationFilter.class)
                 // 让校验Token的过滤器在身份认证过滤器之前
                 .addFilterBefore(new YaTokenFilter(redisUtils, expiration), YaLoginFilter.class)
-                // 禁用默认登出页
-                .logout().disable();
+                // 登出
+                .logout().logoutUrl("/auth/logout").logoutSuccessHandler(new YaLogoutSuccessHandler(redisUtils));
         return http.build();
     }
 

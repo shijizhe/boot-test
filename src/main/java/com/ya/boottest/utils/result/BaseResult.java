@@ -71,12 +71,31 @@ public class BaseResult<T> {
 
 
     /**
-     * 附带数据的成功
+     * 附带数据的成功返回
      * @param data 数据
      * @return BaseResult
      */
     public static <T> BaseResult<T> success(T data) {
         return new BaseResult<>(ResultEnum.SUCCESS,data);
+    }
+
+    /**
+     * 附带成功message的成功返回
+     * @param message 成功信息
+     * @return BaseResult
+     */
+    public static BaseResult<?> successWithMessage(String message) {
+        return new BaseResult<>(ResultEnum.SUCCESS.code, message);
+    }
+
+    /**
+     * 携带信息，返回成功
+     * @param message 成功信息
+     * @param clazz 类型
+     * @return BaseResult
+     */
+    public static <T> BaseResult<T> successWithMessage(String message, Class<T> clazz) {
+        return new BaseResult<>(ResultEnum.SUCCESS.code,message);
     }
 
     public static BaseResult<?> fail(String message) {

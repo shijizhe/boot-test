@@ -12,10 +12,7 @@ import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
 
@@ -58,5 +55,11 @@ public class AuthController {
         }catch (Exception e){
             return BaseResult.fail("用户注册过程中遇到异常：" + e);
         }
+    }
+
+    @GetMapping("/logout")
+    @Operation(summary = "logout", description = "用户退出登录")
+    public Object logout() {
+        return null;
     }
 }
