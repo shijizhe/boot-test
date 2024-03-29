@@ -27,4 +27,6 @@ public interface UserService {
 
     List<YaUserRole> listRoleById(String userId);
 
+    List<String> listAuthorityById(String userId);
+
 }

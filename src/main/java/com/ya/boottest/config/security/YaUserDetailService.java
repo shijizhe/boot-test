@@ -1,6 +1,5 @@
 package com.ya.boottest.config.security;
 
-import com.ya.boottest.autocode.auth.entity.YaUserRole;
 import com.ya.boottest.autocode.user.entity.YaUser;
 import com.ya.boottest.manage.user.service.api.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +34,9 @@ public class YaUserDetailService implements UserDetailsService {
         if(Objects.isNull(user)){
             throw new UsernameNotFoundException("User not Found.");
         }
-        List<YaUserRole> roles = userService.listRoleById(username);
+        List<String> roles = userService.listAuthorityById(username);
         List<GrantedAuthority> authorities = new ArrayList<>(roles.size());
-        roles.forEach( role -> authorities.add(new SimpleGrantedAuthority(role.getRoleId())));
+        roles.forEach( item -> authorities.add(new SimpleGrantedAuthority(item)));
 
         return new User(username, user.getUserPassword(), authorities);
     }

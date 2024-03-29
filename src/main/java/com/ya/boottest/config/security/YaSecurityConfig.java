@@ -10,12 +10,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -29,10 +31,17 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  */
 @Configuration
 @EnableWebSecurity // 开启网络安全注解
+@EnableMethodSecurity
 public class YaSecurityConfig {
 
     @Autowired
     private AuthenticationConfiguration authenticationConfiguration;
+
+    @Autowired
+    private YaAccessDeniedHandler accessDeniedHandler;
+
+    @Autowired
+    private AuthenticationEntryPoint authenticationEntryPoint;
 
     @Autowired
     private RedisUtils redisUtils;
@@ -71,6 +80,8 @@ public class YaSecurityConfig {
                 .addFilterAt(new YaLoginFilter(authenticationManager(authenticationConfiguration), redisUtils, expiration), UsernamePasswordAuthenticationFilter.class)
                 // 让校验Token的过滤器在身份认证过滤器之前
                 .addFilterBefore(new YaTokenFilter(redisUtils, expiration), YaLoginFilter.class)
+                .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).accessDeniedHandler(accessDeniedHandler)
+                .and()
                 // 登出
                 .logout().logoutUrl("/auth/logout").logoutSuccessHandler(new YaLogoutSuccessHandler(redisUtils));
         return http.build();

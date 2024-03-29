@@ -4,6 +4,7 @@ import com.ya.boottest.autocode.auth.entity.YaUserRole;
 import com.ya.boottest.autocode.auth.service.IYaUserRoleService;
 import com.ya.boottest.autocode.user.entity.YaUser;
 import com.ya.boottest.autocode.user.service.IYaUserService;
+import com.ya.boottest.manage.user.mapper.UserMapper;
 import com.ya.boottest.manage.user.service.api.UserService;
 import com.ya.boottest.utils.crypto.AESUtils;
 import jakarta.annotation.Resource;
@@ -32,6 +33,9 @@ public class UserServiceImpl implements UserService {
     @Resource
     IYaUserRoleService iYaUserRoleService;
 
+    @Resource
+    UserMapper userMapper;
+
     @Override
     public YaUser getUserById(String userId) {
         return iYaUserService.lambdaQuery().eq(YaUser::getUserId, userId).one();
@@ -59,5 +63,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<YaUserRole> listRoleById(String userId) {
         return iYaUserRoleService.lambdaQuery().eq(YaUserRole::getUserId, userId).list();
+    }
+
+    @Override
+    public List<String> listAuthorityById(String userId) {
+        return userMapper.listAuthorityById(userId);
     }
 }
